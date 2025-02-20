@@ -8,6 +8,12 @@ def main():
     MOTOR_SERIAL_PORT = '/dev/ttyUSB1'    
 
     CONTROL_CONFIG = {
+        # *** 自动校准配置 ***
+        'calibration': {
+            'enabled': True,  # 设置为True来开启启动时自动校准
+            'duration_s': 3.0, # 校准持续时间（秒）
+            'prompt': "请确保摆杆在底部完全静止，即将开始水平校准..."
+        },
         'main_loop_freq': 200.0,
         'pos_loop_freq': 40.0,
         'upright_angle_rad': math.pi,

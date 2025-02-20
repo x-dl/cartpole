@@ -1,9 +1,9 @@
 # pendulum_control/pendulum.py (最终精确复刻版)
-
 # ... (文件头部和 __init__ 等保持不变，确保之前的修复都存在) ...
 # ... (特别是 __init__.py 的修复) ...
 import time
 import math
+import statistics # 用于计算平均值
 import csv
 import datetime
 from .hardware.actuator import Actuator
@@ -23,10 +23,11 @@ class InvertedPendulum:
         self.is_running = False
         
         self._unpack_config(config)
-
+        
         self.angle_pid = AnglePIDController(
             Kp=self.angle_pid_params['kp'], Ki=self.angle_pid_params['ki'], Kd=self.angle_pid_params['kd'],
-            target_rad=self.upright_angle_rad, sample_time=1.0 / self.main_loop_freq,
+            target_rad=self.upright_angle_rad, # 使用理论垂直点
+            sample_time=1.0 / self.main_loop_freq,
             output_limits=self.angle_pid_params['output_limits']
         )
         self.pos_pid = PositionPIDController(
@@ -34,6 +35,8 @@ class InvertedPendulum:
             setpoint=self.pos_pid_params['target_pos_cm'],
             output_limits=self.pos_pid_params['output_limits_rad']
         )
+        # *** 新增：用于存储校准偏移的变量 ***
+        self.gravity_offset_rad = 0.0
 
         self._control_loop_thread = None
         self._log_file = None
@@ -45,6 +48,12 @@ class InvertedPendulum:
     def _unpack_config(self, config):
         self.main_loop_freq = config.get('main_loop_freq', 200.0)
         self.pos_loop_freq = config.get('pos_loop_freq', 40.0)
+         # *** 解包自校准相关的配置 ***
+        self.calibration_params = config.get('calibration', {})
+        self.auto_calibrate = self.calibration_params.get('enabled', False)
+        self.calibration_duration_s = self.calibration_params.get('duration_s', 3.0)
+        self.calibration_prompt = self.calibration_params.get('prompt', "请保持摆杆完全静止...")      
+        # *** 将原始的 upright_angle_rad 作为理论值保存 ***
         self.upright_angle_rad = config.get('upright_angle_rad', math.pi)
         self.upright_threshold_rad = config.get('upright_threshold_rad', math.radians(20.0))
         self.swingup_gain = config.get('swingup_gain', 0.4)
@@ -58,7 +67,39 @@ class InvertedPendulum:
         self.stable_offset_enabled = self.stable_offset_params.get('enabled', False)
         self.stable_offset_speed_threshold_rad_s = self.stable_offset_params.get('speed_threshold_rad_s', 10.0)
         self.stable_offset_angle_rad = self.stable_offset_params.get('offset_angle_rad', math.radians(1.5))
-    
+    # *** 校准方法 ***
+    def _calibrate_zero_angle(self):
+        if not self.auto_calibrate:
+            print("自动校准已禁用。")
+            self.gravity_offset_rad = 0.0
+            return
+
+        print("\n--- 开始自动水平校准 ---")
+        # ... (提示和数据采集部分不变) ...
+        print(self.calibration_params.get('prompt', "请保持摆杆完全静止..."))
+        angle_readings = []
+        start_time = time.monotonic()
+        while time.monotonic() - start_time < self.calibration_params.get('duration_s', 3.0):
+            angle_rad, _, _ = self.encoder.get_data()
+            if angle_rad is not None: angle_readings.append(angle_rad)
+            remaining_time = self.calibration_params.get('duration_s', 3.0) - (time.monotonic() - start_time)
+            print(f"校准中... 剩余 {remaining_time:.1f} 秒", end='\r')
+            time.sleep(0.01)
+
+        print("\n校准数据采集完成。")
+        if not angle_readings:
+            print("警告：校准期间未能读取到角度数据。无偏移校正。")
+            self.gravity_offset_rad = 0.0
+            return
+
+        # 计算并存储静止偏移量
+        self.gravity_offset_rad = statistics.mean(angle_readings)
+        
+        print(f"检测到静止角度偏移: {math.degrees(self.gravity_offset_rad):.2f}°")
+        print("后续所有角度读数将自动减去此偏移。")
+        print("--- 校准完成 ---")
+
+
     # ... 其他辅助方法保持不变 ...
     def _setup_logging(self):
         """初始化CSV日志文件。"""
@@ -84,19 +125,30 @@ class InvertedPendulum:
         return max(min(control_signal, self.swingup_max_current), -self.swingup_max_current)
 
     def run(self):
+        """启动倒立摆控制系统。"""
         print("--- Starting Inverted Pendulum Control System ---")
         try:
+            # 1. 初始化硬件
             self.motor.connect()
             self.encoder.start()
             self._setup_logging()
+
             if not self.encoder.is_running or not self.motor.is_connected:
                 raise RuntimeError("Failed to initialize hardware.")
+
+            # *** 在主循环前执行校准 ***
+            self._calibrate_zero_angle()
+
             self.is_running = True
             self._program_start_time = time.monotonic()
+            
+            # 2. 运行主控制循环
             self._control_loop()
+
         except (KeyboardInterrupt, RuntimeError) as e:
             print(f"\nSystem stop requested: {e}")
         finally:
+            # 3. 清理资源
             self.stop()
     
     def stop(self):
@@ -109,24 +161,32 @@ class InvertedPendulum:
     
     # *** 1:1 复刻循环逻辑 ***
     def _control_loop(self):
-        """主控制循环 - 精确复刻版"""
+        """主控制循环 - 使用校准后的目标角度"""
+        # ... (循环初始化变量不变) ...
         target_interval = 1.0 / self.main_loop_freq
         pos_loop_ratio = int(self.main_loop_freq / self.pos_loop_freq)
         loop_counter = 0
         angle_offset_rad = 0.0 # 位置环输出值
         stable_offset_rad = 0.0 # 稳定补偿值
 
-        print(f"Control loop started. Main Freq: {self.main_loop_freq}Hz, Pos Freq: {self.pos_loop_freq}Hz.")
-        print("Press Ctrl+C to stop.")
 
+        print(f"\n控制循环已启动 (已应用角度偏移: {-math.degrees(self.gravity_offset_rad):.2f}°)... (按 Ctrl+C 停止)")
+        
         while self.is_running:
+            # ... (循环内部逻辑不变，但所有与目标角度的比较都将使用新值) ...
             loop_start_time = time.monotonic()
             
-            angle_rad, speed_rad_s, _ = self.encoder.get_data()
-            if angle_rad is None: continue
+            # *** 在数据源头进行校正 ***
+            raw_angle_rad, raw_speed_rad_s, _ = self.encoder.get_data()
+            if raw_angle_rad is None: continue
             
-            # --- 状态切换逻辑 (与原始代码完全一致) ---
+            # 1. 计算修正后的角度，后续所有逻辑都使用这个
+            angle_rad = raw_angle_rad - self.gravity_offset_rad
+            speed_rad_s = raw_speed_rad_s # 速度不受静态偏移影响
+
+            # 2. 所有后续计算都基于理论值和修正后的角度
             normalized_error = (angle_rad - self.upright_angle_rad + math.pi) % (2 * math.pi) - math.pi
+            # ... (状态切换逻辑完全不变) ...
             current_mode = self._last_control_mode
             kd_for_update = None
             is_in_pid_zone = abs(normalized_error) < self.upright_threshold_rad
@@ -148,45 +208,40 @@ class InvertedPendulum:
                     current_mode = "PID"
             else:
                 current_mode = "Swing-Up"
+
             
-            # --- 计算目标电流 (与原始代码完全一致) ---
             if current_mode == "Swing-Up":
+                # 起摆控制器现在接收的是修正后的角度，其能量模型恢复正常
                 target_current = self._swing_up_controller(angle_rad, speed_rad_s)
-            else: # PID 和 Transition 模式
-                # 1. 位置环计算
+            else:
                 if loop_counter % pos_loop_ratio == 0:
                     angle_offset_rad = self.pos_pid.compute(self.motor.distance_traveled_cm)
                 
-                # 2. 稳定补偿计算和目标角度设定
+                # 目标角度始终是理论垂直点，加上动态补偿
                 if current_mode == "PID":
-                    # 计算稳定补偿
-                    stable_offset_rad = 0.0 # 每轮循环重置
+                    stable_offset_rad = 0.0
+                    # ... (稳定补偿逻辑不变) ...
                     if abs(speed_rad_s) < self.stable_offset_speed_threshold_rad_s:
-                        if self.motor.velocity_cmps > 0:
-                            stable_offset_rad = self.stable_offset_angle_rad
-                        elif self.motor.velocity_cmps < 0:
-                            stable_offset_rad = -self.stable_offset_angle_rad
-                    # 设定PID模式下的目标角度
+                        if self.motor.velocity_cmps > 0: stable_offset_rad = self.stable_offset_angle_rad
+                        elif self.motor.velocity_cmps < 0: stable_offset_rad = -self.stable_offset_angle_rad
+                    
                     new_target_angle_rad = self.upright_angle_rad + angle_offset_rad + stable_offset_rad
                 else: # Transition 模式
-                    # Transition模式下无任何补偿
-                    new_target_angle_rad = self.upright_angle_rad
+                    new_target_angle_rad = self.upright_angle_rad # 目标是理论垂直点
                 
-                # 3. 更新PID控制器并计算输出
-                self.angle_pid.target_position_rad = new_target_angle_rad # 直接更新目标
+                self.angle_pid.target_position_rad = new_target_angle_rad
+                # PID控制器接收的也是修正后的角度
                 target_current = self.angle_pid.update(angle_rad, speed_rad_s, kd_override=kd_for_update)
             
+            # ... (循环的剩余部分，如发送指令和日志，保持不变) ...
             self._last_control_mode = current_mode
-            
-            # --- 发送指令和日志记录 (与原始代码一致) ---
             if self.motor.set_current(-target_current):
-                if loop_counter % 10 == 0: # 降低打印频率，避免刷屏
+                if loop_counter % 10 == 0:
                     self._print_status(current_mode, angle_rad, speed_rad_s, normalized_error, target_current, angle_offset_rad, stable_offset_rad)
                 if self._log_writer:
                     self._log_data(loop_start_time, current_mode, angle_rad, speed_rad_s, normalized_error, target_current, angle_offset_rad, stable_offset_rad)
             else:
                 print(f"Failed to send command. Target: {-target_current:.4f} A", end='\r')
-
             loop_counter += 1
             loop_elapsed = time.monotonic() - loop_start_time
             sleep_time = target_interval - loop_elapsed
