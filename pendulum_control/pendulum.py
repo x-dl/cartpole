@@ -37,7 +37,6 @@ class InvertedPendulum:
         )
         # *** 新增：用于存储校准偏移的变量 ***
         self.gravity_offset_rad = 0.0
-
         self._control_loop_thread = None
         self._log_file = None
         self._log_writer = None
@@ -57,6 +56,7 @@ class InvertedPendulum:
         self.upright_angle_rad = config.get('upright_angle_rad', math.pi)
         self.upright_threshold_rad = config.get('upright_threshold_rad', math.radians(20.0))
         self.swingup_gain = config.get('swingup_gain', 0.4)
+        self.slope_ratio = config.get('slope_ratio', 0.4)
         self.swingup_max_current = config.get('swingup_max_current', 1.0)
         self.transition_brake_kd = config.get('transition_brake_kd', 2.5)
         self.transition_duration_s = config.get('transition_duration_s', 0.2)
@@ -212,7 +212,8 @@ class InvertedPendulum:
             
             if current_mode == "Swing-Up":
                 # 起摆控制器现在接收的是修正后的角度，其能量模型恢复正常
-                target_current = self._swing_up_controller(angle_rad, speed_rad_s)
+                target_current = self._swing_up_controller(angle_rad , speed_rad_s)
+                target_current -= self.gravity_offset_rad * self.slope_ratio
             else:
                 if loop_counter % pos_loop_ratio == 0:
                     angle_offset_rad = self.pos_pid.compute(self.motor.distance_traveled_cm)
@@ -220,12 +221,12 @@ class InvertedPendulum:
                 # 目标角度始终是理论垂直点，加上动态补偿
                 if current_mode == "PID":
                     stable_offset_rad = 0.0
+                    slope_offset_rad = -self.gravity_offset_rad * self.slope_ratio * 0.01
                     # ... (稳定补偿逻辑不变) ...
                     if abs(speed_rad_s) < self.stable_offset_speed_threshold_rad_s:
                         if self.motor.velocity_cmps > 0: stable_offset_rad = self.stable_offset_angle_rad
                         elif self.motor.velocity_cmps < 0: stable_offset_rad = -self.stable_offset_angle_rad
-                    
-                    new_target_angle_rad = self.upright_angle_rad + angle_offset_rad + stable_offset_rad
+                    new_target_angle_rad = self.upright_angle_rad + angle_offset_rad + stable_offset_rad + slope_offset_rad
                 else: # Transition 模式
                     new_target_angle_rad = self.upright_angle_rad # 目标是理论垂直点
                 
