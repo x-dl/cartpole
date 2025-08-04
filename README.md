@@ -1,46 +1,120 @@
+<div align="center">
+
 # 倒立摆控制库 (Inverted Pendulum Control Library)
 
-这是一个用于控制一阶直线倒立摆的Python库。它封装了与电机和编码器的底层通信，并提供了高级的控制接口。
+</div>
 
-## 特性
+<div align="center">
 
-- **模块化设计**: 硬件驱动、控制器和应用逻辑完全分离。
-- **易于使用**: 只需配置几个参数，即可通过一个简单的 `demo.py` 文件运行整个系统。
-- **实时控制**: 采用多线程进行非阻塞数据采集，保证主控制循环的频率。
-- **状态机控制**: 内置“起摆 (Swing-Up)”、“过渡 (Transition)”和“稳定 (PID)”三种模式的自动切换。
-- **数据记录**: 自动将关键的控制数据保存为CSV文件，便于分析和调试。
+[![Python Version](https://img.shields.io/badge/Python-3.7+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg?style=for-the-badge&logo=githubactions)](https://github.com/)
+[![Issues](https://img.shields.io/github/issues/your-username/your-repo?style=for-the-badge&logo=github)](https://github.com/your-username/your-repo/issues)
 
-## 系统需求
+</div>
 
-- Python 3.7+
-- `pyserial` 库
-- 倒立摆硬件平台（一个带编码器的直流电机驱动的小车）
+> **✨ 联合开发** <br>
+> 本项目由 **卓益得 (droid)** 与 **华为昇腾 (Huawei Ascend)** 团队联合开发，旨在打造一个高效、易用的倒立摆控制与研究平台。
 
-## 安装
+这是一个用于控制一级倒立摆的Python库，它封装了与倒立摆相关的通信协议，并提供了常规的PID控制。
 
+### 项目展示
+<table>
+  <tr>
+    <td align="center">
+      <img src="resources/WAIC.jpg" alt="WAIC show" width="520">
+      <br>
+      <sub>在世界人工智能大会上的展示</sub>
+    </td>
+    <td align="center">
+      <img src="resources/outlook.jpg" alt="outfit" width="520">
+      <br>
+      <sub>项目硬件外观</sub>
+    </td>
+    <td align="center">
+      <img src="resources/inner.jpg" alt="outfit" width="520">
+      <br>
+      <sub>项目硬件内饰</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
+### **目录 (Table of Contents)**
+* [核心特性](#-核心特性)
+* [技术栈](#-技术栈)
+* [运行与安装](#-运行与安装)
+* [快速开始](#-快速开始)
+* [完整视频](#-视频演示)
+
+---
+
+## 🌟 核心特性
+
+| 特性图标 | 名称 | 详细描述 |
+| :---: | :--- | :--- |
+| **✨** | **硬件抽象层** | 解耦了上层应用和底层硬件。用户无需关心串口通信协议，只需调用几个函数，即可搭建一个倒立摆的 `env` (环境)，并与之进行命令交互。 |
+| **🎮** | **多模态控制** | 为了获得更好的控制效果，该库支持直立环和位置环双闭环控制，确保系统稳定与精准。 |
+| **⚖️** | **智能状态切换** | 内置“平衡”(Balance)、“摇摆”(Swing up)、“过渡”(Transition)和“响应”(PID)多种模式的自动切换，适应不同工况。 |
+| **📂** | **便捷数据记录** | 自动将控制器的数据保存到CSV文件，便于后续使用 Python 等工具进行分析和可视化。 |
+
+---
+
+## 🛠️ 技术栈
+
+<div align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/PySerial-A4161A?style=for-the-badge" alt="pyserial">
+  <img src="https://img.shields.io/badge/Huawei%20Ascend-DE0027?style=for-the-badge&logo=huawei" alt="Huawei Ascend">
+</div>
+
+---
+
+## 📖 运行与安装
+
+<details>
+<summary><strong>► 点击查看详细的系统要求和安装步骤</strong></summary>
+
+#### 系统要求
+* Python 3.7+
+* `pyserial` 库
+
+#### 安装步骤
 1.  克隆或下载此项目到您的本地计算机。
-2.  打开终端，导航到项目根目录（即包含 `setup.py` 文件的目录）。
+2.  打开终端，导航到项目根目录 (即包含 `setup.py` 文件的目录)。
 3.  运行以下命令进行安装：
-
     ```bash
-    pip install -e
+    pip install -e .
     ```
-    
-    这会将 `pendulum_control` 库安装到您的Python环境中。
+    这样，`pendulum_control` 库便会安装到您的Python环境中。
 
-## 快速开始
+</details>
 
-安装完成后，您可以直接运行示例文件来启动倒立摆。
+---
 
-1.  **编辑配置文件**: 打开 `examples/demo.py` 文件。
-2.  **修改串口**: 根据您的系统，修改 `ENCODER_SERIAL_PORT` 和 `MOTOR_SERIAL_PORT` 的值。
-3.  **调整PID参数**: 您可以在 `CONTROL_CONFIG` 字典中微调PID增益 (`kp`, `ki`, `kd`) 以获得最佳性能。
-4.  **运行演示**: 在终端中，导航到 `examples` 目录并运行：
+## 🚀 快速开始
 
+<details>
+<summary><strong>► 点击查看如何快速运行您的倒立摆</strong></summary>
+
+安装完成后，您可以直接运行示例文件来自动倒立摆。
+
+1.  **⚡️ 修改配置文件**：打开 `examples/demo.py` 文件。
+2.  **🔌 修改端口**：根据您的系统，修改 `ENCODER_SERIAL_PORT` 和 `MOTOR_SERIAL_PORT` 的值。
+3.  **🔧 调整PID参数**：您可以通过 `CONTROL_CONFIG` 字典来修改PID增益(`kp`, `ki`, `kd`)，以获得最佳性能。
+4.  **🚀 运行演示**：在终端中，导航到 `examples/` 目录并运行：
     ```bash
     python demo.py
     ```
-    
-    系统将开始运行，您将在控制台看到实时状态。按下 `Ctrl+C` 可以安全地停止程序。
+    系统将开始运行，您可在终端看到倒立摆的实时状态。按下 `Ctrl+C` 可以安全地终止程序。
 
-## 库结构
+</details>
+
+---
+
+## 🎬 视频演示
+
+<div align="center">
+  <video src="resources/pid.mp4" controls width="800"></video>
+</div>
