@@ -22,17 +22,17 @@
 <table>
   <tr>
     <td align="center">
-      <img src="resources/outlook.jpg" alt="WAIC show" width="520" height="380">
+      <img src="resources/outlook.jpg" alt="WAIC show" width="580" height="380">
       <br>
       <sub>项目硬件外观</sub>
     </td>
     <td align="center">
-      <img src="resources/waic_1.jpg" alt="outfit" width="520" height="380">
+      <img src="resources/waic_1.jpg" alt="outfit" width="580" height="380">
       <br>
       <sub>2025世界人工智能大会展示</sub>
     </td>
     <td align="center">
-      <img src="resources/inner.jpg" alt="outfit" width="520" height="380">
+      <img src="resources/inner.jpg" alt="outfit" width="580" height="380">
       <br>
       <sub>项目硬件内饰</sub>
     </td>
