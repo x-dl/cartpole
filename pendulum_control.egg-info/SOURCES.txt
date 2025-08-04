@@ -1,0 +1,7 @@
+README.md
+setup.py
+pendulum_control.egg-info/PKG-INFO
+pendulum_control.egg-info/SOURCES.txt
+pendulum_control.egg-info/dependency_links.txt
+pendulum_control.egg-info/requires.txt
+pendulum_control.egg-info/top_level.txt
