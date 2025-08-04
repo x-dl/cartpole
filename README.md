@@ -115,6 +115,4 @@
 
 ## 🎬 视频演示
 
-<div align="center">
-  <video src="resources/pid.mp4" controls width="800"></video>
-</div>
+<img src="resources/pid.gif" alt="核心功能演示" width="2560">
