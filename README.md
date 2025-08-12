@@ -115,4 +115,13 @@
 
 ## 🎬 视频演示
 
-<img src="resources/pid.gif" alt="核心功能演示" width="2560">
+<table>
+<tr>
+<td align="center">
+<img src="resources/pid.gif" alt="核心功能演示" width="640">
+</td>
+<td align="center">
+<img src="resources/slope.gif" alt="进阶功能演示" width="640">
+</td>
+</tr>
+</table>
