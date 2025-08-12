@@ -118,10 +118,10 @@
 <table>
 <tr>
 <td align="center">
-<img src="resources/pid.gif" alt="核心功能演示" width="480">
+<img src="resources/pid.gif" alt="核心功能演示" width="360">
 </td>
 <td align="center">
-<img src="resources/slope.gif" alt="进阶功能演示" width="480">
+<img src="resources/slope.gif" alt="进阶功能演示" width="360">
 </td>
 </tr>
 </table>
