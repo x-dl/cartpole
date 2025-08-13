@@ -11,7 +11,7 @@
 [![Python Version](https://img.shields.io/badge/Python-3.7+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg?style=for-the-badge&logo=githubactions)](https://github.com/)
-[![Issues](https://img.shields.io/github/issues/your-username/your-repo?style=for-the-badge&logo=github)](https://github.com/your-username/your-repo/issues)
+[![Issues](https://img.shields.io/github/issues/x-dl/cartpole?style=for-the-badge&logo=github)](https://github.com/x-dl/cartpole/issues)
 
 </div>
 
@@ -95,11 +95,11 @@
 #### **安装步骤**
 1.  **克隆仓库** <br> 克隆或下载此项目到您的本地计算机。
     ```bash
-    git clone [https://github.com/your-username/your-repo.git](https://github.com/your-username/your-repo.git)
+    git clone [https://github.com/x-dl/cartpole.git](https://github.com/x-dl/cartpole.git)
     ```
 2.  **进入目录** <br> 打开终端，导航到项目根目录。
     ```bash
-    cd your-repo
+    cd cartpole
     ```
 3.  **安装依赖** <br> 运行以下命令进行安装。
     ```bash
@@ -186,9 +186,19 @@ python evaluate.py
       <img src="resources/slope.gif" alt="进阶功能演示" width="320">
       <br><sub><b>坡道平衡演示</b></sub>
     </td>
+  </tr>
+</table>
+<table>
+  <tr>
     <td align="center">
       <img src="resources/mujoco_inv.gif" alt="仿真视频展示" width="320">
       <br><sub><b>MuJoCo仿真演示</b></sub>
+    </td>
+    <td align="center">
+      <a href="https://www.bilibili.com/video/BV1xS4y1C7a4/" target="_blank">
+        <img src="resources/outlook.jpg" alt="开箱视频展示" width="320" height="180" >
+      </a>
+      <br><sub><b><a href="https://www.bilibili.com/video/BV1yubhzUEms/?spm_id_from=333.1387.homepage.video_card.click&vd_source=7b447f4ef2ae03180df0b82ba1de00ff" target="_blank">观看开箱与组装视频 (Bilibili)</a></b></sub>
     </td>
   </tr>
 </table>
@@ -203,13 +213,13 @@ python evaluate.py
       <h3>欢迎加入我们！</h3>
       <p>我们热烈欢迎任何形式的贡献，无论是新功能的建议、代码优化，还是文档的改进。如果您对本项目感兴趣，并且希望使其变得更好，请不要犹豫！</p>
       <ul>
-        <li>🐛 <strong>发现 Bug？</strong> 请通过 <a href="https://github.com/your-username/your-repo/issues">Issues</a> 告诉我们。</li>
-        <li>✨ <strong>有新想法？</strong> 欢迎提交 <a href="https://github.com/your-username/your-repo/pulls">Pull Request</a> 与我们一同实现。</li>
+        <li>🐛 <strong>发现 Bug？</strong> 请通过 <a href="https://github.com/x-dl/cartpole/issues">Issues</a> 告诉我们。</li>
+        <li>✨ <strong>有新想法？</strong> 欢迎提交 <a href="https://github.com/x-dl/cartpole/pulls">Pull Request</a> 与我们一同实现。</li>
         <li>📖 <strong>想了解更多？</strong> 请阅读我们的 <a href="CONTRIBUTING.md">贡献指南</a>。</li>
       </ul>
       <p>每一次贡献，都将使这个项目更加完善。期待您的加入！</p>
     </td>
-    <td width="25%" align="center" valign="middle">
+    <td width="30%" align="center" valign="middle">
       <img src="https://placehold.co/200x200/DE0027/FFFFFF?text=Let's%20Build%20Together!" alt="欢迎加入我们">
     </td>
   </tr>
