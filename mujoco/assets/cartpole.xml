@@ -1,6 +1,6 @@
-<mujoco model="cartpole_new2">
+<mujoco model="cartpole">
   
-  <compiler angle="radian" meshdir="./meshes_2/"/>
+  <compiler angle="radian" meshdir="../meshes/"/>
     <size njmax="500" nconmax="100" />
     <option timestep="0.001" integrator="RK4" gravity="0 0 -9.8">
         <flag contact="enable" energy="disable" gravity="enable"/>

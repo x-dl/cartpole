@@ -13,7 +13,7 @@ class CartPoleEnv(gym.Env):
     def __init__(self, render_mode=None, max_episode_steps=2000):
         super().__init__()
         
-        xml_path = 'cartpole_new2.xml'
+        xml_path = '../assets/cartpole.xml'
         self.model = mujoco.MjModel.from_xml_path(xml_path)
         self.data = mujoco.MjData(self.model)
         

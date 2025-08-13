@@ -6,7 +6,7 @@ from CartPoleEnv import CartPoleEnv # 导入我们自己的环境
 
 # 创建环境
 # VecEnv可以并行运行多个环境，加速训练
-vec_env = make_vec_env(CartPoleEnv, n_envs=4)
+vec_env = make_vec_env(CartPoleEnv, seed=1,n_envs=4)
 
 # 创建PPO模型
 # MlpPolicy: 使用标准的多层感知机作为策略和价值网络
@@ -15,7 +15,7 @@ model = PPO(
     "MlpPolicy", 
     vec_env, 
     verbose=1,
-    tensorboard_log="./ppo_cartpole_tensorboard/" # 可选：用于Tensorboard可视化
+    # tensorboard_log="./ppo_cartpole_tensorboard/" # 可选：用于Tensorboard可视化
 )
 
 # 开始训练

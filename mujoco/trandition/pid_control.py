@@ -61,7 +61,7 @@ class PIDController:
 # --- 2. 主控制程序 (实现你描述的清晰流程) ---
 def main():
     # --- 模型加载 ---
-    xml_path = 'cartpole.xml'
+    xml_path = '../assets/cartpole.xml'
     model = mujoco.MjModel.from_xml_path(xml_path)
     data = mujoco.MjData(model)
     slide_joint_id = model.joint('slide').id

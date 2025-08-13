@@ -1,0 +1,9 @@
+Wed Aug 13 17:18:00 2025
+WARNING: mju_openResource: unknown file 'cartpole_new2.xml'
+
+Wed Aug 13 17:18:14 2025
+WARNING: mju_openResource: unknown file 'cartpole.xml'
+
+Wed Aug 13 17:18:54 2025
+WARNING: mju_openResource: unknown file 'cartpole.xml'
+
