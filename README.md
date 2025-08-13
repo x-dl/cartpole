@@ -119,9 +119,15 @@
 <tr>
 <td align="center">
 <img src="resources/pid.gif" alt="核心功能演示" width="360">
+<br><sub>核心功能演示</sub>
 </td>
 <td align="center">
 <img src="resources/slope.gif" alt="进阶功能演示" width="360">
+<br><sub>进阶功能演示</sub>
+</td>
+<td align="center" colspan="2">
+<img src="resources/开箱视频.gif" alt="开箱视频展示" width="360">
+<br><sub>开箱视频</sub>
 </td>
 </tr>
 </table>
